@@ -3,7 +3,7 @@ mod structs_definitions;
 use anyhow::Error;
 use structs_definitions::AuthPayload;
 
-struct TopicsManagerClient {
+pub struct TopicsManagerClient {
     username: String,
     password: String,
     address: String,
@@ -12,7 +12,7 @@ struct TopicsManagerClient {
 }
 
 impl TopicsManagerClient {
-    async fn new(username: &str, password: &str, address: &str, port: &str) -> Self {
+    pub fn new(username: &str, password: &str, address: &str, port: &str) -> Self {
         Self {
             username: username.to_string(),
             password: password.to_string(),
@@ -22,7 +22,7 @@ impl TopicsManagerClient {
         }
     }
 
-    async fn renew_auth_token(&mut self) -> Result<(), Error> {
+    pub async fn renew_auth_token(&mut self) -> Result<(), Error> {
         let client = reqwest::Client::builder().build()?;
 
         // Set headers
@@ -36,7 +36,7 @@ impl TopicsManagerClient {
         };
 
         let resp = client
-            .post(format!("http://{}:{}/auth/login", self.address, self.port))
+            .post(format!("{}:{}/auth/login", self.address, self.port))
             .headers(headers)
             .json(&auth_payload)
             .send()
@@ -60,7 +60,7 @@ impl TopicsManagerClient {
         }
     }
 
-    async fn has_auth_token(&mut self) -> bool {
+    pub async fn has_auth_token(&mut self) -> bool {
         self.auth_token.is_some()
     }
 }
