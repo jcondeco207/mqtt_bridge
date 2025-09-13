@@ -45,14 +45,14 @@ fn init_router() -> Router {
 async fn main() {
     let loaded = from_filename("src/.env").or_else(|_| from_filename(".env"));
     if loaded.is_ok() {
-        println!("Loaded .env file");
+        println!("[ LOG ]: Loaded .env file");
     } else {
-        println!("No .env file found in src/ or project root; reading environment directly");
+        println!("[ ERROR ]: No .env file found in src/ or project root; reading environment directly");
     }
 
     tokio::spawn(topics_manager_workflow());
     let app = init_router();
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    println!("[ OK ]: MQTT Bridge is boomin... Listening on port 3000");
+    println!("[ LOG ]: MQTT Bridge is boomin... Listening on port 3000");
     axum::serve(listener, app).await.unwrap();
 }

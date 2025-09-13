@@ -42,7 +42,7 @@ impl TopicsManagerClient {
             .send()
             .await?;
 
-        // Ensure success
+        // Check status before consuming the response
         if !resp.status().is_success() {
             return Err(Error::msg(format!(
                 "Auth request failed with status: {}",
@@ -51,13 +51,16 @@ impl TopicsManagerClient {
         }
 
         // Extract JSON and auth token
-        let body: serde_json::Value = resp.json().await?;
-        if let Some(token) = body.get("token").and_then(|t| t.as_str()) {
-            self.auth_token = Some(token.to_string());
-            Ok(())
-        } else {
-            Err(Error::msg("No token field in response"))
-        }
+        let token = resp.text().await?;
+        self.auth_token = Some(token);
+        Ok(())
+        // let body: serde_json::Value = serde_json::from_str(&text)?;
+        // if let Some(token) = body.get("token").and_then(|t| t.as_str()) {
+        //     self.auth_token = Some(token.to_string());
+        //     Ok(())
+        // } else {
+        //     Err(Error::msg("No token field in response"))
+        // }
     }
 
     pub async fn has_auth_token(&mut self) -> bool {
