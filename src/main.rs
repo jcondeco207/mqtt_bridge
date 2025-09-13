@@ -1,19 +1,21 @@
-use axum::{response::IntoResponse, routing::get, Json, Router};
-use serde::Serialize;
-
-
 mod topics_manager_client;
+mod structs_definitions;
 
-#[derive(Serialize)]
-struct HealthStatus{
-    is_online: bool,
-}
+use axum::{response::IntoResponse, routing::get, Json, Router};
+use structs_definitions::HealthStatus;
 
+// Concurrent Processes
+
+
+// Server setup
+
+// Basic route to check if the server is online
 async fn is_online() -> impl IntoResponse{
     let status: HealthStatus = HealthStatus { is_online: true };
     Json(status)
 }
 
+// Axum server router
 fn init_router() -> Router{
     Router::new().route("/", get(is_online))
 }
