@@ -12,20 +12,26 @@ use topics_manager_client::TopicsManagerClient;
 
 // Server setup
 async fn topics_manager_workflow() -> Result<(), Error> {
-    let username = env::var("USERNAME").unwrap();
-    let password = env::var("PASSWORD").unwrap();
-    let address = env::var("TM_ADDRESS").unwrap_or_else(|_| "http://localhost".into());
-    let port = env::var("TM_PORT").unwrap_or_else(|_| "8080".into());
+    let username: String = env::var("USERNAME").unwrap();
+    let password: String = env::var("PASSWORD").unwrap();
+    let address: String = env::var("TM_ADDRESS").unwrap_or_else(|_| "http://localhost".into());
+    let port: i32 = env::var("TM_PORT")
+        .unwrap_or_else(|_| "8080".to_string())
+        .parse()
+        .unwrap_or(8080);
 
-    let mut tmc = TopicsManagerClient::new(&username, &password, &address, &port);
+    let mut tmc = TopicsManagerClient::new(&username, &password, &address, port);
 
     if let Err(e) = tmc.renew_auth_token().await {
         eprintln!("[ Error ]: Failed to renew auth token: {:?}", e);
         return Err(e);
     }
 
-    let worked = tmc.has_auth_token().await;
-    println!("Has token {:?}", worked);
+    if let Err(e) = tmc.register().await {
+        eprintln!("[ Error ]: Failed to register: {:?}", e);
+        return Err(e);
+    }
+    
 
     Ok(())
 }
